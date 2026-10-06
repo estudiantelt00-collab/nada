@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test de Afinidad Doctrinal Cristiana</title>
+<style>
+:root{--navy:#0f1f3d;--ink:#1b2a47;--bg:#f2f4f8;--card:#fff;--line:#dde2ec;--acc:#c8872b;--mut:#66728a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+.card{background:var(--card);border-radius:16px;padding:28px;box-shadow:0 4px 24px rgba(15,31,61,.08);animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-size:2rem;line-height:1.2;margin:0 0 8px;color:var(--navy)}
+h2{color:var(--navy);margin:28px 0 10px}
+.sub{color:var(--mut)}
+.hero{background:var(--navy);color:#fff}.hero h1{color:#fff}.hero .sub{color:#b9c3d9}
+.stats{display:flex;gap:12px;margin:20px 0}
+.stat{flex:1;background:rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center}
+.stat b{display:block;font-size:1.6rem;color:var(--acc)}
+.btn{border:0;border-radius:12px;padding:14px 26px;font-size:1rem;font-weight:600;cursor:pointer;transition:.2s}
+.pri{background:var(--acc);color:#fff}.pri:hover{filter:brightness(1.08)}
+.sec{background:#e8ecf4;color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.top{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mut);margin-bottom:8px}
+.bar{height:8px;background:#e3e8f1;border-radius:8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--acc);border-radius:8px;transition:width .5s}
+.q{font-size:1.25rem;font-weight:600;margin:22px 0 16px;color:var(--navy)}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;font:inherit;color:inherit;cursor:pointer;transition:.15s}
+.opt:hover{border-color:#9fb0cf;transform:translateX(2px)}
+.opt.sel{border-color:var(--acc);background:#fdf5e8}
+.nav{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
+.big{font-size:2.4rem;font-weight:800;color:var(--acc);margin:0}
+.row{margin:12px 0}
+.row .l{display:flex;justify-content:space-between;font-weight:600;font-size:.95rem;margin-bottom:4px}
+.row .bar{height:12px}.row.first .bar>i{background:var(--acc)}.row .bar>i{background:#4f6a9c}
+.note{background:#eef2f9;border-left:4px solid var(--acc);padding:12px 16px;border-radius:8px;margin:16px 0}
+.ex{font-size:.92rem;color:var(--mut);margin:2px 0 0}
+.dim{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:10px 0}
+.dim h4{margin:0 0 6px;color:var(--navy)}
+.mini{display:grid;grid-template-columns:150px 1fr 42px;gap:8px;align-items:center;font-size:.85rem;margin:3px 0}
+.mini .bar{height:7px}.mini .bar>i{background:#4f6a9c}
+select{font:inherit;padding:10px;border-radius:10px;border:2px solid var(--line);width:100%}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.hide{display:none}
+@media(max-width:520px){.card{padding:20px}h1{font-size:1.6rem}.mini{grid-template-columns:110px 1fr 38px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ========= PERFILES ========= */
+// Orden FIJO de columnas en cada matriz: C R B A P K J S
+const PROF=[
+ {k:'C',n:'Católico romano'},{k:'R',n:'Reformado / Calvinista'},{k:'B',n:'Bautista'},
+ {k:'A',n:'Arminiano (perfil teológico)'},{k:'P',n:'Pentecostal'},{k:'K',n:'Carismático / Prosperidad'},
+ {k:'J',n:'Testigo de Jehová'},{k:'S',n:'Adventista del Séptimo Día'}];
+const EXPL={
+C:"Tu patrón de respuestas muestra afinidad con posiciones católicas, especialmente en la autoridad de Escritura y Tradición, el Magisterio, los sacramentos, la Eucaristía, la devoción mariana y la cooperación con la gracia.",
+R:"Tu patrón de respuestas muestra afinidad con posiciones reformadas, especialmente en la soberanía de Dios, la gracia eficaz, la elección, la suficiencia de la Escritura, la justificación por fe y la perseverancia de los santos.",
+B:"Tu patrón de respuestas muestra afinidad con posiciones bautistas, especialmente en el bautismo de creyentes, la conversión personal, la Cena como memorial, la autonomía de la iglesia local y la primacía de la Escritura. Esta tradición admite diversidad interna sobre calvinismo y arminianismo.",
+A:"Tu patrón de respuestas muestra afinidad con el perfil arminiano: Dios toma la iniciativa y ofrece su gracia a todos, pero la persona puede responder libremente, resistirla y perseverar en fe. Es un perfil teológico presente en varias denominaciones.",
+P:"Tu patrón de respuestas muestra afinidad con posiciones pentecostales, especialmente en la continuidad de los dones, el bautismo en el Espíritu, la oración por sanidad y la posibilidad de profecía contemporánea sometida al discernimiento bíblico. No implica creer en la teología de prosperidad.",
+K:"Tu patrón de respuestas muestra afinidad con el perfil carismático/prosperidad: énfasis en dones y palabras proféticas, sanidad, fe como medio de recibir bendiciones y expectativa de prosperidad material. Este perfil es más específico que el carismatismo en general.",
+J:"Tu patrón de respuestas muestra afinidad con posiciones de los Testigos de Jehová, en aspectos como la visión sobre la naturaleza de Jesús y la Trinidad, la autoridad doctrinal organizacional y distintivos escatológicos propios.",
+S:"Tu patrón muestra afinidad con posiciones adventistas, particularmente en el sábado, el estado de los muertos, el papel de Ellen G. White, el santuario/juicio investigador y la escatología adventista."};
+const DIMS={dios:'Dios y Cristo',escr:'Autoridad: Escritura y Tradición',inic:'Iniciativa: Dios y respuesta humana',gracia:'Gracia, salvación y libertad',
+bautismo:'Bautismo',cena:'Cena del Señor / sacramentos',maria:'María, santos e imágenes',iglesia:'Iglesia y autoridad eclesial',
+dones:'Dones espirituales y sanidad',profecia:'Profecía y revelación contemporánea',sabado:'Sábado',muertos:'Estado de los muertos',
+ellen:'Ellen G. White y santuario',esca:'Escatología',prosp:'Prosperidad'};
+
+/* ========= PREGUNTAS Y MATRIZ =========
+ Cada opción: [texto, "CRBAPKJS"] con 8 dígitos 0-5 (0 nada, 1 ligera, 2-3 moderada, 4 fuerte, 5 muy fuerte).
+ Puedes editar los dígitos para cambiar pesos. "No estoy seguro" se añade automáticamente con 0 puntos. */
+const Q=(d,t,o)=>({d,t,o});
+const QS=[
+// BLOQUE 1 — Dios y Jesucristo
+Q('dios','¿Cuál describe mejor tu creencia acerca de Dios?',[
+['Un único Dios en tres personas: Padre, Hijo y Espíritu Santo.','33333303'],
+['Un único Dios; Jesús es su Hijo, pero no es Dios Todopoderoso.','00000040'],
+['Un único Dios; Jesús es el Mesías e Hijo de Dios, pero no es Dios mismo.','00000030'],
+['No acepto la doctrina cristiana tradicional de la Trinidad.','00000040']]),
+Q('dios','¿Quién es Jesucristo?',[
+['Dios Hijo eterno, plenamente Dios y plenamente hombre.','33333303'],
+['El Hijo de Dios, subordinado al Padre y creado por él.','00000050'],
+['El Mesías enviado por Dios.','00000010'],
+['Un profeta y enviado especial de Dios.','00000000']]),
+Q('dios','¿Existía Jesús antes de su nacimiento humano?',[
+['Sí, eternamente como Dios Hijo.','33333303'],
+['Sí, como criatura celestial creada por Dios.','00000050'],
+['No; comenzó a existir cuando nació.','00000000']]),
+Q('dios','¿Debe Jesús recibir adoración?',[
+['Sí, porque es verdaderamente Dios.','33333303'],
+['Debe ser honrado como Hijo de Dios, pero no como Dios Todopoderoso.','00000040'],
+['Debe ser honrado como Mesías y Señor.','00000010']]),
+// BLOQUE 2 — Biblia y autoridad
+Q('escr','¿Qué tiene la máxima autoridad para determinar lo que debe creerse como doctrina?',[
+['La Biblia como autoridad suprema.','05543203'],
+['La Biblia junto con la Tradición y el Magisterio de la Iglesia.','50000000'],
+['La Biblia interpretada dentro de la comunidad y tradición de la iglesia.','31100000'],
+['La Biblia junto con las enseñanzas y revelaciones reconocidas por mi tradición.','00001243']]),
+Q('escr','Si una autoridad religiosa enseña algo que considero claramente contrario a la Biblia, ¿qué debería hacer?',[
+['Aceptarlo, porque la Iglesia tiene autoridad para interpretar correctamente la Escritura.','50000000'],
+['Examinarlo y rechazarlo si realmente contradice la Escritura.','04543303'],
+['Consultar la interpretación de mi iglesia y tradición antes de decidir.','31000000'],
+['Seguir la autoridad de la organización religiosa.','00000050']]),
+Q('escr','¿Puede una tradición de la Iglesia establecer una doctrina obligatoria que no aparezca explícitamente en la Biblia?',[
+['Sí, si forma parte de la Tradición apostólica recibida por la Iglesia.','50000000'],
+['No; toda doctrina obligatoria debe estar sometida a la Escritura.','05542103'],
+['Puede existir tradición útil, pero nunca por encima de la Biblia.','03131100'],
+['Puede existir revelación y enseñanza adicional reconocida por mi tradición.','00002344']]),
+// BLOQUE 3 — Dios me busca / yo busco a Dios
+Q('inic','Si quiero acercarme a Dios, ¿qué describe mejor lo que tengo que hacer?',[
+['Dios debe transformar primero mi corazón; incluso mi capacidad de creer depende de su gracia.','15301100'],
+['Dios toma la iniciativa, pero yo debo responder libremente a su gracia.','42353313'],
+['Dios me llama, pero yo tengo que decidir personalmente buscarlo y seguirlo.','00533322'],
+['Dios ofrece su gracia a todos y cada persona puede aceptarla o rechazarla.','20352223']]),
+Q('inic','¿Qué ocurre primero: Dios me busca o yo comienzo a buscar a Dios?',[
+['Dios me busca primero y hace posible que yo lo busque.','35232202'],
+['Dios toma la iniciativa y yo respondo libremente.','41353303'],
+['Dios llama a todos y la persona puede decidir responder.','00433322'],
+['Dios llama, pero mi respuesta y perseverancia son indispensables.','20242243']]),
+Q('inic','Si dos personas escuchan exactamente el mismo mensaje sobre Cristo y una cree mientras la otra no, ¿qué explica mejor la diferencia?',[
+['Dios concedió eficazmente la gracia y la fe a una de ellas.','15201100'],
+['Dios dio gracia a ambas, pero una respondió libremente y la otra la rechazó.','40353303'],
+['Cada persona tiene responsabilidad de decidir cómo responder al evangelio.','00433333'],
+['Dios llama a todos, pero la respuesta personal determina lo que sucede.','00343333']]),
+Q('inic','¿Qué tan importante es que una persona «busque a Dios»?',[
+['Es indispensable, pero esa búsqueda es fruto de la gracia de Dios.','25220000'],
+['Es la respuesta libre de la persona a la gracia de Dios.','32343300'],
+['Es una decisión personal que Dios espera que cada individuo tome.','00423300'],
+['Es fundamental buscar a Dios continuamente mediante fe y obediencia.','20222243']]),
+// BLOQUE 4 — Gracia, salvación y libertad
+Q('gracia','Después de la caída, ¿puede el ser humano acercarse a Dios sin una obra previa de la gracia?',[
+['No.','35332202'],
+['Sí, mediante la capacidad humana de responder libremente.','00101231'],
+['Dios concede gracia previa que permite responder libremente.','30253303']]),
+Q('gracia','¿Puede una persona rechazar finalmente la gracia salvadora de Dios?',[
+['No; la gracia eficaz de Dios cumple su propósito en los elegidos.','15201100'],
+['Sí; una persona puede resistir la gracia de Dios.','40353323'],
+['Dios concede gracia preveniente que permite aceptarla o rechazarla.','30353303']]),
+Q('gracia','¿La elección divina para salvación depende finalmente de la decisión humana?',[
+['No; depende de la elección soberana de Dios.','15201100'],
+['Dios conoce de antemano quién creerá libremente.','30352203'],
+['Dios ofrece su gracia a todos y la persona debe responder.','00433323']]),
+Q('gracia','¿Puede una persona verdaderamente salva perder definitivamente la salvación?',[
+['No; Dios preserva a todos los verdaderamente regenerados.','05401100'],
+['Sí, una persona puede apartarse definitivamente.','40033233'],
+['La salvación requiere perseverar en fe y obediencia.','40153344']]),
+Q('gracia','¿Qué describe mejor la justificación?',[
+['Dios declara justo al pecador mediante la fe en Cristo.','05433302'],
+['Dios transforma al creyente interiormente mediante su gracia.','50100000'],
+['Incluye perdón y transformación progresiva dentro de la vida cristiana.','40130033']]),
+Q('gracia','¿Qué papel tienen las buenas obras?',[
+['Son fruto y evidencia de una fe verdadera.','05433301'],
+['Son parte de la cooperación del creyente con la gracia.','50200000'],
+['Son necesarias como evidencia de una vida fiel y obediente.','20243244'],
+['Son necesarias para mantener una relación correcta con Dios.','30000052']]),
+// BLOQUE 5 — Fe y conversión
+Q('inic','Cuando una persona «decide seguir a Cristo», ¿qué describe mejor lo que ocurre?',[
+['Dios primero regenera y concede la fe; la decisión humana es fruto de esa obra.','15201100'],
+['Dios concede gracia y la persona responde libremente con fe.','30353303'],
+['La persona escucha el evangelio y decide creer y entregarse a Cristo.','00524422'],
+['Dios llama, pero la persona debe responder y continuar viviendo en fe y obediencia.','30032244']]),
+Q('gracia','¿Puede una persona tener verdadera fe y aun así estar equivocada en algunas doctrinas importantes?',[
+['Sí.','33333302'],
+['No.','10000041'],
+['Depende de qué doctrina se trate.','00000000']]),
+// BLOQUE 6 — Bautismo
+Q('bautismo','¿Quién debe recibir el bautismo?',[
+['Personas que profesan personalmente su fe en Cristo.','02534344'],
+['Creyentes y también hijos de creyentes.','54010000'],
+['Personas que aceptan conscientemente la fe y desean seguir a Cristo.','01433333']]),
+Q('bautismo','¿Qué representa principalmente el bautismo?',[
+['Testimonio público de fe y unión con Cristo.','03534333'],
+['Sacramento mediante el cual Dios comunica gracia.','53010000'],
+['Señal de una decisión consciente de seguir a Cristo.','00433333'],
+['Incorporación sacramental a la comunidad cristiana.','52000000']]),
+Q('bautismo','¿Es el bautismo necesario para la salvación?',[
+['No es el rito en sí lo que salva.','05433303'],
+['Tiene una importancia sacramental fundamental.','51000000'],
+['Es un acto de obediencia, pero no causa la salvación.','00434444']]),
+// BLOQUE 7 — Cena del Señor
+Q('cena','¿Qué ocurre con el pan y el vino en la Cena del Señor?',[
+['Se convierten realmente en el cuerpo y la sangre de Cristo.','50000000'],
+['Cristo está realmente presente de manera espiritual.','15021100'],
+['Son principalmente símbolos que recuerdan a Cristo.','01534444'],
+['Son elementos simbólicos utilizados como memorial del sacrificio de Cristo.','00534444']]),
+Q('cena','¿La Cena del Señor comunica gracia de manera sacramental?',[
+['Sí.','52000000'],
+['Sí, aunque su recepción está relacionada con la fe.','25020000'],
+['Principalmente es un memorial y acto de obediencia.','00534444']]),
+// BLOQUE 8 — María, santos e imágenes
+Q('maria','¿Cuál describe mejor tu posición sobre María?',[
+['Madre de Jesús y ejemplo de fe, pero no debe recibir veneración religiosa.','04433354'],
+['Puede recibir veneración y pedirse su intercesión.','50000000'],
+['Es una figura importante, pero la oración debe dirigirse exclusivamente a Dios.','03433333']]),
+Q('maria','¿Es apropiado pedir la intercesión de los santos?',[
+['No; debemos dirigirnos a Dios por medio de Cristo.','04433355'],
+['Sí; los santos pueden interceder ante Dios.','50000000']]),
+Q('maria','¿Pueden utilizarse imágenes religiosas?',[
+['Sí, siempre que no sean adoradas como dioses.','33333311'],
+['Sí, dentro de la tradición litúrgica de la Iglesia.','50000000'],
+['Es preferible evitar imágenes religiosas para prevenir la idolatría.','05322243']]),
+// BLOQUE 9 — Iglesia y autoridad
+Q('iglesia','¿Qué estructura representa mejor la Iglesia?',[
+['Una Iglesia universal con obispos y autoridad sacramental.','50000000'],
+['Iglesias locales gobernadas por pastores/ancianos bajo la autoridad de la Biblia.','05233302'],
+['Congregaciones autónomas que profesan la misma fe bíblica.','00522200'],
+['Una organización mundial con estructura doctrinal y administrativa unificada.','00000054']]),
+Q('iglesia','¿Existe una autoridad humana universal sobre todos los cristianos?',[
+['Sí, el Papa.','50000000'],
+['No; ninguna persona está por encima de la Escritura.','05543302'],
+['La autoridad corresponde a la Iglesia y sus líderes dentro de su tradición.','32011133'],
+['Una organización religiosa puede ejercer autoridad doctrinal unificada.','00000052']]),
+// BLOQUE 10 — Espíritu Santo, dones y profecía
+Q('dones','¿Los dones milagrosos continúan actualmente?',[
+['Sí, continúan.','31135503'],
+['Sí, especialmente mediante el bautismo en el Espíritu Santo.','10015400'],
+['Sí, pero deben ejercerse con mucho discernimiento y sometimiento a la Escritura.','34333313'],
+['Los dones apostólicos/proféticos extraordinarios cesaron.','14410040']]),
+Q('dones','¿Es hablar en lenguas una señal necesaria del bautismo del Espíritu Santo?',[
+['Sí.','00005300'],
+['No.','34430333'],
+['Puede ocurrir, pero no es obligatorio.','33232400']]),
+Q('profecia','¿Puede Dios dar hoy un mensaje profético específico para una persona o congregación?',[
+['Sí; el don de profecía continúa, aunque debe discernirse.','11025504'],
+['Puede existir dirección espiritual o impresiones, pero nunca con autoridad igual a la Escritura.','34333302'],
+['No existe actualmente un don profético equivalente al ministerio profético bíblico.','04410040'],
+['Puede haber experiencias espirituales, pero no nueva revelación doctrinal.','34432202']]),
+Q('profecia','Una persona dice: «Dios me habló y me dijo que debía hacer X». ¿Cómo debería evaluarse?',[
+['Puede ser una verdadera dirección del Espíritu y debe discernirse espiritualmente.','11125500'],
+['Puede ser una impresión genuina, pero debe someterse cuidadosamente a la Escritura.','33444303'],
+['No debe tratarse como revelación normativa; la Escritura es suficiente como revelación doctrinal.','05410021'],
+['Debe evaluarse mediante la Escritura y el discernimiento de la comunidad de creyentes.','33334313']]),
+Q('profecia','¿Puede una profecía contemporánea establecer una doctrina nueva que no aparece en la Biblia?',[
+['Sí.','00002333'],
+['No; toda profecía debe someterse a la Escritura y no puede crear nueva doctrina normativa.','45544302'],
+['Puede aportar dirección personal, pero no doctrina para toda la Iglesia.','33334403']]),
+Q('profecia','¿Qué papel deberían tener sueños, visiones, impresiones internas y palabras proféticas?',[
+['Pueden ser instrumentos mediante los cuales Dios guía actualmente.','11025500'],
+['Pueden ocurrir, pero deben someterse siempre a la Escritura y al discernimiento.','33334303'],
+['Las experiencias personales no deben utilizarse para establecer doctrina.','05410021'],
+['Pueden tener valor personal, pero no autoridad doctrinal.','34432203']]),
+Q('profecia','Si alguien afirma haber recibido una revelación del Espíritu que contradice claramente la Biblia, ¿qué debería hacerse?',[
+['Rechazarla.','45543234'],
+['Considerarla una experiencia personal, pero no aceptarla como doctrina.','33334403'],
+['Examinarla con discernimiento, pero la Escritura tiene prioridad.','23334502']]),
+// BLOQUE 11 — Pecado y naturaleza humana
+Q('gracia','¿Cómo nace el ser humano respecto al pecado?',[
+['Con una naturaleza caída e inclinada al pecado.','25322201'],
+['Afectado por el pecado de Adán, pero con gracia que permite responder a Dios.','40353302'],
+['No nace culpable personalmente del pecado de Adán.','00322243']]),
+Q('gracia','¿Qué tan afectada está la voluntad humana por el pecado?',[
+['Profundamente; necesita la gracia regeneradora de Dios.','15301100'],
+['Está afectada, pero Dios da gracia que permite responder libremente.','40353303'],
+['Conserva capacidad para elegir a Dios.','00102343']]),
+// BLOQUE 12 — Predestinación
+Q('gracia','¿Qué posición representa mejor tu creencia sobre la predestinación?',[
+['Dios predestina soberanamente a los elegidos para salvación.','15201100'],
+['Dios predestina según su conocimiento previo de quienes creerán.','20353303'],
+['Dios desea salvar a todos y la respuesta humana tiene un papel decisivo.','00444434'],
+['La predestinación no debe entenderse de manera determinista.','30343334']]),
+// BLOQUE 13 — Sábado y domingo
+Q('sabado','¿Qué día debe observarse especialmente como día de reposo?',[
+['El sábado, como día establecido por Dios.','00000005'],
+['El domingo, como día tradicional de reunión cristiana.','44444400'],
+['El cristiano no está obligado a guardar un día específico como requisito de salvación.','13333340'],
+['La decisión puede variar según la conciencia cristiana.','01111100']]),
+Q('sabado','¿Sigue siendo el sábado un mandamiento vigente para los cristianos?',[
+['Sí.','00000005'],
+['No como obligación ceremonial para los cristianos.','44444440'],
+['Es beneficioso observarlo, pero no determina la salvación.','11111102']]),
+// BLOQUE 14 — Muerte
+Q('muertos','¿Qué ocurre con una persona después de morir?',[
+['El alma continúa consciente ante Dios o separada de Él.','44444400'],
+['La persona permanece inconsciente hasta la resurrección.','00000055'],
+['Existe otra forma de existencia espiritual consciente.','00000000']]),
+Q('muertos','¿Qué importancia debería tener la doctrina del estado de los muertos?',[
+['Es fundamental entender que el alma continúa consciente.','22222200'],
+['Es fundamental entender que los muertos permanecen inconscientes hasta la resurrección.','00000055'],
+['Existen diferentes interpretaciones cristianas legítimas.','11111100']]),
+// BLOQUE 15 — Ellen G. White
+Q('ellen','¿Qué afirmación describe mejor tu posición sobre Ellen G. White?',[
+['Sus escritos tienen una autoridad profética especial para la Iglesia.','00000005'],
+['Pueden ser útiles espiritualmente, pero no tienen autoridad equivalente a la Biblia.','00000003'],
+['No considero que sus escritos tengan autoridad profética.','34444440']]),
+Q('ellen','¿Qué posición describe mejor tu comprensión del juicio investigador / santuario celestial?',[
+['Es una doctrina distintiva que forma parte importante de la comprensión adventista del ministerio de Cristo.','00000005'],
+['No acepto esa doctrina como enseñanza bíblica.','22222220'],
+['Nunca había escuchado sobre ella.','00000000']]),
+// BLOQUE 16 — Escatología
+Q('esca','¿Cómo entiendes el regreso de Cristo?',[
+['Será literal y visible, con resurrección y juicio final.','33333303'],
+['Habrá un futuro período de tribulación y un reino milenial.','01324432'],
+['Muchas imágenes de Apocalipsis son principalmente simbólicas.','44221132']]),
+Q('esca','¿Crees en un rapto separado del regreso visible de Cristo?',[
+['Sí.','00324400'],
+['No; el regreso de Cristo y la reunión de los creyentes forman parte del mismo acontecimiento final.','44231145']]),
+// BLOQUE 17 — Prosperidad y sanidad
+Q('prosp','¿Cuál afirmación representa mejor tu creencia sobre la prosperidad material?',[
+['Dios desea normalmente que sus hijos prosperen económicamente como parte de sus bendiciones.','00001500'],
+['La fe y la generosidad pueden relacionarse con bendiciones materiales, aunque no garantizan riqueza.','00003400'],
+['La prosperidad económica no es una señal necesaria de la bendición de Dios.','44444144'],
+['La riqueza o pobreza no determinan la relación de una persona con Dios.','33333033']]),
+Q('dones','¿Qué relación existe entre fe y sanidad física?',[
+['Dios quiere sanar y la fe puede ser un medio para recibir sanidad.','00004500'],
+['Dios puede sanar milagrosamente, pero no garantiza que toda persona será sanada en esta vida.','33334303'],
+['La sanidad no es necesariamente una señal de fe verdadera.','04432122']]),
+// BLOQUE 18 — Identidad (NO puntúa)
+{d:'id',t:'¿Con cuál tradición o perfil te identificas actualmente?',o:[
+['Católico romano'],['Reformado / calvinista'],['Bautista'],['Arminiano'],['Pentecostal'],
+['Carismático / prosperidad'],['Testigo de Jehová'],['Adventista del Séptimo Día'],['Otra'],['Ninguna']],noscore:true}
+];
+// Se añade «No estoy seguro» (0 puntos) a cada pregunta puntuable.
+QS.forEach(q=>{q.o=q.o.map(x=>({t:x[0],m:(x[1]||'').padEnd(8,'0').slice(0,8).split('').map(Number)}));
+ if(!q.noscore)q.o.push({t:'No estoy seguro.',m:[0,0,0,0,0,0,0,0]});});
+const N=QS.length; // 50 (49 doctrinales + 1 de identidad que NO puntúa)
+const CONF=['Nada seguro','Poco seguro','Medianamente seguro','Muy seguro','Totalmente seguro'];
+
+/* ========= ESTADO ========= */
+let ans=new Array(N).fill(null),cur=-1,conf=null;
+const app=document.getElementById('app');
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+/* ========= CÁLCULO ========= */
+function compute(){
+ const raw=Array(8).fill(0),max=Array(8).fill(0);
+ const dRaw={},dMax={};
+ QS.forEach((q,i)=>{
+  if(q.noscore)return;
+  const mx=Array(8).fill(0);q.o.forEach(o=>o.m.forEach((v,p)=>{if(v>mx[p])mx[p]=v;}));
+  const sel=ans[i]!==null?q.o[ans[i]].m:Array(8).fill(0);
+  dRaw[q.d]=dRaw[q.d]||Array(8).fill(0);dMax[q.d]=dMax[q.d]||Array(8).fill(0);
+  for(let p=0;p<8;p++){raw[p]+=sel[p];max[p]+=mx[p];dRaw[q.d][p]+=sel[p];dMax[q.d][p]+=mx[p];}
+ });
+ const pct=(a,b)=>b>0?Math.max(0,Math.min(100,Math.round(a/b*100))):0;
+ const res=PROF.map((p,i)=>({...p,i,pct:pct(raw[i],max[i])})).sort((a,b)=>b.pct-a.pct);
+ const dims={};Object.keys(dRaw).forEach(d=>{dims[d]=PROF.map((p,i)=>({n:p.n,pct:pct(dRaw[d][i],dMax[d][i]),has:dMax[d][i]>0})).filter(x=>x.has).sort((a,b)=>b.pct-a.pct).slice(0,3);});
+ return{res,dims};
+}
+
+/* ========= VISTAS ========= */
+function start(){
+ app.innerHTML=`<div class="card hero"><h1>Test de Afinidad Doctrinal Cristiana</h1>
+ <p class="sub">50 preguntas para comparar tus convicciones con diferentes perfiles y tradiciones doctrinales.</p>
+ <p>Este cuestionario mide afinidad doctrinal. No determina oficialmente tu religión, denominación o identidad cristiana.</p>
+ <div class="stats"><div class="stat"><b>8</b>perfiles doctrinales</div><div class="stat"><b>50</b>preguntas</div></div>
+ <p class="sub" style="font-size:.9rem">Privacidad: todo se calcula en tu navegador. No se recopilan ni envían datos.</p>
+ <button class="btn pri" id="go">Comenzar</button></div>`;
+ document.getElementById('go').onclick=()=>{cur=0;question();};
+}
+function question(){
+ const q=QS[cur],pr=Math.round((cur+1)/N*100),last=cur===N-1;
+ app.innerHTML=`<div class="card"><div class="top"><span>Pregunta ${cur+1} de ${N}</span><span>${pr}%</span></div>
+ <div class="bar"><i style="width:${pr}%"></i></div>
+ <div class="q">${esc(q.t)}</div>
+ ${q.o.map((o,i)=>`<button class="opt ${ans[cur]===i?'sel':''}" data-i="${i}"><b>${String.fromCharCode(65+i)}.</b> ${esc(o.t)}</button>`).join('')}
+ <div class="nav"><button class="btn sec" id="prev" ${cur===0?'disabled':''}>Anterior</button>
+ <button class="btn pri" id="next" ${ans[cur]===null?'disabled':''}>${last?'Ver mis resultados':'Siguiente'}</button></div></div>`;
+ app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ans[cur]=+b.dataset.i;question();});
+ document.getElementById('prev').onclick=()=>{cur--;question();};
+ document.getElementById('next').onclick=()=>{if(ans[cur]===null)return;if(last)results();else{cur++;question();}};
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function results(){
+ const{res,dims}=compute(),top=res[0],close=res[0].pct-res[1].pct<6;
+ const idQ=QS[N-1],idTxt=idQ.o[ans[N-1]].t;
+ const msg=close?'Tu resultado muestra afinidades cercanas entre varios perfiles. Esto significa que tus respuestas combinan elementos presentes en más de una tradición.':'Tu mayor afinidad aparece con este perfil.';
+ app.innerHTML=`<div class="card"><h2 style="margin-top:0">TU MAYOR AFINIDAD DOCTRINAL</h2>
+ <h1>${top.n}</h1><p class="big">${top.pct}%</p>
+ <p>${EXPL[top.k]}</p><div class="note">${msg} Este resultado no demuestra tu identidad religiosa; mide similitud de convicciones con perfiles generales.</div>
+ <h2>COMPARACIÓN COMPLETA</h2>
+ ${res.map((r,i)=>`<div class="row ${i?'':'first'}"><div class="l"><span>${r.n}</span><span>${r.pct}%</span></div><div class="bar"><i style="width:${r.pct}%"></i></div></div>`).join('')}
+ <p class="ex">Los porcentajes son afinidades independientes (no suman 100%): varios perfiles comparten posiciones.</p>
+ <h2>EXPLICACIÓN POR PERFIL</h2>
+ ${res.map(r=>`<p><b>${r.n} (${r.pct}%).</b> ${EXPL[r.k]}</p>`).join('')}
+ <h2>TUS ÁREAS DOCTRINALES</h2>
+ <p class="ex">En cada área, los perfiles con los que tus respuestas coinciden más.</p>
+ ${Object.keys(DIMS).filter(d=>dims[d]).map(d=>`<div class="dim"><h4>${DIMS[d]}</h4>${dims[d].map(x=>`<div class="mini"><span>${x.n.replace(' (perfil teológico)','')}</span><div class="bar"><i style="width:${x.pct}%"></i></div><span>${x.pct}%</span></div>`).join('')}</div>`).join('')}
+ <h2>IDENTIDAD DECLARADA</h2>
+ <p><b>Perfil/tradición con la que actualmente te identificas:</b> ${esc(idTxt)}</p>
+ <p class="ex">Este dato no fue utilizado para calcular tus porcentajes.</p>
+ <h2>CONFIANZA</h2>
+ <p>¿Qué tan seguro estás de las respuestas que proporcionaste?</p>
+ <select id="conf"><option value="">Selecciona…</option>${CONF.map((c,i)=>`<option value="${i}" ${conf===i?'selected':''}>${String.fromCharCode(65+i)}. ${c}</option>`).join('')}</select>
+ <p class="ex">La confianza tampoco modifica las puntuaciones.</p>
+ <div class="acts"><button class="btn pri" id="share">Compartir resultado</button>
+ <button class="btn sec" id="back">Revisar respuestas</button>
+ <button class="btn sec" id="again">Realizar el test nuevamente</button></div>
+ <p class="ex" id="msg"></p></div>`;
+ document.getElementById('conf').onchange=e=>{conf=e.target.value===''?null:+e.target.value;};
+ document.getElementById('back').onclick=()=>{cur=N-1;question();};
+ document.getElementById('again').onclick=()=>{ans=new Array(N).fill(null);conf=null;cur=-1;start();window.scrollTo(0,0);};
+ const text=`Realicé el Test de Afinidad Doctrinal Cristiana. Mi mayor afinidad doctrinal fue ${top.n} con ${top.pct}%.`;
+ const btn=document.getElementById('share'),msgEl=document.getElementById('msg');
+ if(!navigator.share)btn.textContent='Copiar resultado';
+ btn.onclick=async()=>{
+  try{
+   if(navigator.share){await navigator.share({title:'Test de Afinidad Doctrinal Cristiana',text});}
+   else{await navigator.clipboard.writeText(text);msgEl.textContent='Resultado copiado al portapapeles.';}
+  }catch(e){
+   const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();
+   try{document.execCommand('copy');msgEl.textContent='Resultado copiado al portapapeles.';}catch(_){msgEl.textContent=text;}
+   t.remove();
+  }
+ };
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+start();
+</script>
+</body>
+</html>
